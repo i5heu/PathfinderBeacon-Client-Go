@@ -10,24 +10,27 @@ If you want to join an existing room, you need to provide the private key of the
 Anybody who has the room hash can view the room and its nodes.
 
 ```go
-    // This will create a new private key which will lead to a new room
-    bootstraper, err := PathfinderBeacon.NewPathfinderBeacon(&auth.Key{})
+package main
+
+import (
+	"fmt"
+
+	"github.com/i5heu/PathfinderBeacon-Client-Go"
+	"github.com/i5heu/PathfinderBeacon/pkg/auth"
+)
+
+func main() {
+	bootstraper, err := PathfinderBeacon.NewPathfinderBeacon(&auth.Key{})
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("privateKey", string(bootstraper.Key.PrivateKeyToPem()))
 
-	err = bootstraper.AddPublicIPv4(80, "tcp")
+	err = bootstraper.AddIPsBestEffort(80, "tcp")
 	if err != nil {
-		fmt.Println("Could not add public IPv4 address: ", err)
+		fmt.Println("Could not add IPs: ", err)
 	}
-
-	err = bootstraper.AddPublicIPv6(80, "tcp")
-	if err != nil {
-		fmt.Println("Could not add public IPv6 address: ", err)
-	}
-
 	// send the addresses to the server
 	err = bootstraper.PushAddresses()
 	if err != nil {
@@ -52,4 +55,7 @@ Anybody who has the room hash can view the room and its nodes.
 		panic(err)
 	}
 	fmt.Println("VerifyRoomSignature", ok)
+
+	// you have to send bootstraper.PushAddresses once an hour, otherwise the node will be removed from the list
+}
 ```

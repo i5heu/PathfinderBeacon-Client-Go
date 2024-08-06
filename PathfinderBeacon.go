@@ -224,3 +224,59 @@ func (p *PathfinderBeacon) AddPublicIPv6(port int, protocol string) error {
 
 	return nil
 }
+
+var unwantedInterfaces = []string{"docker", "br-", "veth", "lo"}
+
+func (p *PathfinderBeacon) AddIPsFromCommonInterfaces(port int, protocol string) error {
+	// Get a list of all network interfaces
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return fmt.Errorf("Error getting interfaces: %v", err)
+	}
+
+OUTER:
+	for _, iface := range interfaces {
+		for _, unwantedInterface := range unwantedInterfaces {
+			if strings.Contains(iface.Name, unwantedInterface) {
+				continue OUTER
+			}
+		}
+
+		addresses, err := iface.Addrs()
+		if err != nil {
+			return fmt.Errorf("Error getting addresses: %v", err)
+		}
+
+		for _, address := range addresses {
+			// Check if the address is not a loopback address and is an IP address
+			if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ipnet.IP.To4() != nil || ipnet.IP.To16() != nil {
+					p.AddAddress(ipnet.IP.String(), port, protocol)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (p *PathfinderBeacon) AddIPsBestEffort(port int, protocol string) error {
+	var err error
+
+	err = p.AddIPsFromCommonInterfaces(port, protocol)
+	if err != nil {
+		return err
+	}
+
+	err = p.AddPublicIPv4(port, protocol)
+	if err != nil {
+		return err
+	}
+
+	err = p.AddPublicIPv6(port, protocol)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
