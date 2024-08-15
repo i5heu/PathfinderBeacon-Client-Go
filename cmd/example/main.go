@@ -19,6 +19,13 @@ func main() {
 	if err != nil {
 		fmt.Println("Could not add IPs: ", err)
 	}
+
+	req, err := bootstraper.GetPushAddressesRaw()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Request:", req)
+
 	// send the addresses to the server
 	err = bootstraper.PushAddresses()
 	if err != nil {
