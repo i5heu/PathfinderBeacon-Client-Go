@@ -59,3 +59,9 @@ func main() {
 	// you have to send bootstraper.PushAddresses once an hour, otherwise the node will be removed from the list
 }
 ```
+
+## License
+PathfinderBeacon-Client-Go (c) 2024 Mia Heidenstedt and contributors   
+PathfinderBeacon (c) 2024 Mia Heidenstedt and contributors  
+   
+SPDX-License-Identifier: AGPL-3.0
