@@ -105,6 +105,18 @@ func (p *PathfinderBeacon) PushAddresses() error {
 	return nil
 }
 
+func (p *PathfinderBeacon) GetPushAddressesRaw() (string, error) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	jsonData, err := json.Marshal(p.self)
+	if err != nil {
+		return "", fmt.Errorf("Error marshalling JSON: %v\n", err)
+	}
+
+	return string(jsonData), nil
+}
+
 func (p *PathfinderBeacon) PullNodes() error {
 	roomName := p.Key.GetRoomName()
 	roomNodeLinks, err := GetRoomNodeLinks(roomName)
